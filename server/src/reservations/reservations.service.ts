@@ -19,16 +19,16 @@ export class ReservationsService {
   ) {}
 
   // 예약 생성
-  async create(dto: CreateReservationDto, userId: string) {
-    const reservation = this.reservationRepo.create({
-      pet: { id: dto.petId } as Pet,
-      groomer: { id: dto.groomerId } as Groomer,
-      date: dto.date,
-      startTime: dto.startTime,
-      endTime: dto.endTime,
-      serviceType: dto.serviceType,
-      memo: dto.memo,
-    });
+  async create(dto: CreateReservationDto, _userId: string) {
+    const reservation = new Reservation();
+    reservation.pet = { id: dto.petId } as Pet;
+    reservation.groomer = { id: dto.groomerId } as Groomer;
+    reservation.date = dto.date;
+    reservation.startTime = dto.startTime;
+    reservation.endTime = dto.endTime;
+    reservation.serviceType = dto.serviceType;
+    reservation.memo = dto.memo ?? null;
+    reservation.status = 'pending';
 
     return this.reservationRepo.save(reservation);
   }

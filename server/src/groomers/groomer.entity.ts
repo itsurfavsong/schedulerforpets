@@ -16,15 +16,15 @@ export class Groomer {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ length: 200, nullable: true })
-  shopName: string;
+  @Column({ type: 'varchar', length: 200, nullable: true })
+  shopName: string | null;
 
   @Column({ type: 'text', nullable: true })
-  address: string;
+  address: string | null;
 
   @Column({ type: 'text', nullable: true })
-  bio: string;
+  bio: string | null;
 
-  @Column({ nullable: true })
-  avatarUrl: string;
+  @Column({ type: 'text', nullable: true })
+  avatarUrl: string | null;
 }

@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 export type UserRole = 'customer' | 'groomer' | 'admin';
 
@@ -24,6 +25,7 @@ export class User {
   @Column({ default: 'customer' })
   role: UserRole;
 
+  @Exclude()
   @Column()
   password: string;
 

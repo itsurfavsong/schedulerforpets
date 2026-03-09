@@ -29,5 +29,5 @@ export class Pet {
   age: number;
 
   @Column({ nullable: true, type: 'text' })
-  notes: string;
+  notes: string | null;
 }

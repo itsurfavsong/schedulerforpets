@@ -41,7 +41,7 @@ export class Reservation {
   serviceType: ServiceType;
 
   @Column({ type: 'text', nullable: true })
-  memo: string;
+  memo: string | null | undefined;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
