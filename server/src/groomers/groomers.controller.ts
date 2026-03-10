@@ -13,7 +13,7 @@ interface AuthRequest {
 export class GroomersController {
   constructor(private groomersService: GroomersService) {}
 
-  // 전체 목록은 누구나 조회 가능
+  // 전체 목록 (Everyone)
   @Get()
   findAll() {
     return this.groomersService.findAll();
@@ -24,6 +24,24 @@ export class GroomersController {
     return this.groomersService.findOne(id);
   }
 
+  // 프로필 조회 (Groomer)
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  findMyProfile(@Request() req: AuthRequest) {
+    return this.groomersService.findMyProfile(req.user.id);
+  }
+
+  // 프로필 수정 (Groomer)
+  @Put('me')
+    @UseGuards(JwtAuthGuard)
+    updateMyProfile(
+        @Body(new ZodValidationPipe(UpdateGroomerSchema)) dto: UpdateGroomerDto,
+        @Request() req: AuthRequest,
+    ) {
+        return this.groomersService.updateMyProfile(req.user.id, dto);
+    }
+
+  // 프로필 생성 (Groomer)
   @Post()
   @UseGuards(JwtAuthGuard)
   create(
@@ -33,16 +51,7 @@ export class GroomersController {
     return this.groomersService.create(dto, req.user.id);
   }
 
-  @Put(':id')
-  @UseGuards(JwtAuthGuard)
-  update(
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateGroomerSchema)) dto: UpdateGroomerDto,
-    @Request() req: AuthRequest,
-  ) {
-    return this.groomersService.update(id, dto, req.user.id);
-  }
-
+  // 프로필 삭제 (Admin)
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string, @Request() req: AuthRequest) {

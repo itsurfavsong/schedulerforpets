@@ -14,8 +14,12 @@ export class UsersService {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다.');
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = user;
     return result;
+  }
+
+  async updatePushToken(userId: string, pushToken: string) {
+    await this.userRepo.update(userId, { pushToken });
+    return { message: 'Push token 저장 완료!' };
   }
 }

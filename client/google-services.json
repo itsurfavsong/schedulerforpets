@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "794172160707",
+    "project_id": "scheduler-for-pets",
+    "storage_bucket": "scheduler-for-pets.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:794172160707:android:5d77754ddd47fda83c8076",
+        "android_client_info": {
+          "package_name": "com.schedulerforpets.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrZzqrEe71-7OIeboVxOPvWQYZJwW6pMQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

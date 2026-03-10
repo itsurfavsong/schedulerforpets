@@ -46,20 +46,32 @@ export class GroomersService {
     return this.groomerRepo.save(groomer);
   }
 
+  // 미용사 프로필 확인 (로그인한 미용사 본인)
+  async findMyProfile(userId: string) {
+    const groomer = await this.groomerRepo.findOne({
+      where: { user: { id: userId } },
+      relations: ['user'],
+    });
+    if (!groomer) throw new NotFoundException('미용사 프로필이 없습니다.');
+    return groomer;
+  }
+
   // 미용사 프로필 수정
-  async update(id: string, dto: UpdateGroomerDto, userId: string) {
-    const groomer = await this.findOne(id);
-    if (groomer.user.id !== userId) throw new ForbiddenException('권한이 없습니다.');
+  async updateMyProfile(userId: string, dto: UpdateGroomerDto) {
+    const groomer = await this.groomerRepo.findOne({
+      where: { user: { id: userId } },
+      relations: ['user'],
+    });
+    if (!groomer) throw new NotFoundException('미용사 프로필이 없습니다.');
 
     groomer.shopName = dto.shopName;
     groomer.address = dto.address;
     groomer.bio = dto.bio ?? null;
-    groomer.avatarUrl = dto.avatarUrl ?? null;
 
     return this.groomerRepo.save(groomer);
   }
 
-  // 미용사 프로필 삭제
+  // 미용사 프로필 삭제 (Admin)
   async remove(id: string, userId: string) {
     const groomer = await this.findOne(id);
     if (groomer.user.id !== userId) throw new ForbiddenException('권한이 없습니다.');

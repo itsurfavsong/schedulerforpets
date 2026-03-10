@@ -31,4 +31,7 @@ export class User {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ name: 'push_token', type: 'varchar', nullable: true })
+  pushToken: string | null;
 }

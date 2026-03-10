@@ -43,6 +43,11 @@ export class ReservationsController {
     return this.reservationsService.findMyReservations(req.user.id);
   }
 
+  @Get('groomer')
+  findGroomerReservations(@Request() req: AuthRequest) {
+    return this.reservationsService.findGroomerReservations(req.user.id);
+  } 
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.reservationsService.findOne(id);
