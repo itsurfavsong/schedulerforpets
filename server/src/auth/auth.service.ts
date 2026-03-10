@@ -21,20 +21,14 @@ export class AuthService {
 
   async register(dto: RegisterDto) {
     // 중복 전화번호 체크
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const exists = await this.userRepo.findOne({ where: { phone: dto.phone } });
     if (exists) throw new ConflictException('이미 사용 중인 전화번호입니다.');
 
-    // 비밀번호 암호화
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
     const user = this.userRepo.create({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       name: dto.name,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       phone: dto.phone,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       email: dto.email,
       password: hashedPassword,
     });
