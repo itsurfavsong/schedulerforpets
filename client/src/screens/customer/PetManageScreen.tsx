@@ -12,6 +12,9 @@ import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { type CustomerStackParamList } from '../../navigation/AppNavigator';
 import { useMyPets, useDeletePet } from '../../hooks/usePets';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import EmptyState from '../../components/EmptyState';
+import BackHeader from '../../components/BackHeader';
 
 type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'PetManage'>;
 
@@ -35,22 +38,20 @@ export default function PetManageScreen() {
   return (
     <View style={styles.container}>
       {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← 뒤로</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>🐶 펫 관리</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('PetForm', {})}>
-          <Text style={styles.addBtn}>+ 추가</Text>
-        </TouchableOpacity>
-      </View>
+      <BackHeader
+        title="펫 관리"
+        right={
+          <TouchableOpacity onPress={() => navigation.navigate('PetForm', {})}>
+            <Text style={{ color: '#FF6B6B' }}>+ 추가</Text>
+          </TouchableOpacity>
+        }
+      />
 
       {isLoading ? (
-        <ActivityIndicator color="#FF6B6B" style={{ marginTop: 40 }} />
+        <LoadingSpinner />
       ) : pets?.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyEmoji}>🐾</Text>
-          <Text style={styles.emptyText}>등록된 반려견이 없습니다.</Text>
+          <EmptyState emoji="🐶" message="등록된 반려견이 없습니다." />
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => navigation.navigate('PetForm', {})}

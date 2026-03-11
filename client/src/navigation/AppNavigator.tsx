@@ -13,6 +13,8 @@ import GroomerProfileScreen from '../screens/groomer/GroomerProfileScreen';
 import PetManageScreen from '../screens/customer/PetManageScreen';
 import PetFormScreen from '../screens/customer/PetFormScreen';
 import ReviewFormScreen from '../screens/customer/ReviewFormScreen';
+import ChatListScreen from '../screens/chat/ChatListScreen';
+import ChatScreen from '../screens/chat/ChatScreen';
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -40,12 +42,16 @@ export type CustomerStackParamList = {
     existingRating?: number;
     existingComment?: string;
   };
+  ChatList: undefined;
+  Chat: { roomId: string; shopName: string };
 };
 
 export type GroomerStackParamList = {
   GroomerHome: undefined;
   GroomerReservationDetail: { reservationId: string };
   GroomerProfile: undefined;
+  ChatList: undefined;
+  Chat: { roomId: string; shopName: string };
 };
 
 export type RootStackParamList = AuthStackParamList & CustomerStackParamList & GroomerStackParamList;
@@ -68,6 +74,8 @@ export default function AppNavigator() {
           <>
             <Stack.Screen name="GroomerHome" component={GroomerHomeScreen} />
             <Stack.Screen name="GroomerReservationDetail" component={GroomerReservationDetailScreen} />
+            <Stack.Screen name="ChatList" component={ChatListScreen} />
+            <Stack.Screen name="Chat" component={ChatScreen} />
           </>
         ) : (
           <>
@@ -79,6 +87,8 @@ export default function AppNavigator() {
             <Stack.Screen name="PetManage" component={PetManageScreen} />
             <Stack.Screen name="PetForm" component={PetFormScreen} />
             <Stack.Screen name="ReviewForm" component={ReviewFormScreen} />
+            <Stack.Screen name="ChatList" component={ChatListScreen} />
+            <Stack.Screen name="Chat" component={ChatScreen} />
           </>
         )}
       </Stack.Navigator>

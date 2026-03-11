@@ -16,6 +16,9 @@ import { type CustomerStackParamList } from '../../navigation/AppNavigator';
 import { useQuery } from '@tanstack/react-query';
 import { useCreatePet, useUpdatePet } from '../../hooks/usePets';
 import axiosInstance from '../../api/axiosInstance';
+import StarRating from '../../components/StarRating';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import BackHeader from '../../components/BackHeader';
 
 type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'PetForm'>;
 type RouteProps = RouteProp<CustomerStackParamList, 'PetForm'>;
@@ -24,6 +27,7 @@ interface Pet {
   id: string;
   name: string;
   breed: string;
+  gender: 'male' | 'female';
   weight: number;
   age: number;
   notes: string | null;
@@ -38,6 +42,7 @@ export default function PetFormScreen() {
 
   const [name, setName] = useState('');
   const [breed, setBreed] = useState('');
+  const [gender, setGender] = useState<'male' | 'female'>('male');
   const [weight, setWeight] = useState('');
   const [age, setAge] = useState('');
   const [notes, setNotes] = useState('');
@@ -53,6 +58,7 @@ export default function PetFormScreen() {
     if (pet) {
       setName(pet.name);
       setBreed(pet.breed);
+      setGender(pet.gender);
       setWeight(String(pet.weight));
       setAge(String(pet.age));
       setNotes(pet.notes ?? '');
@@ -64,8 +70,8 @@ export default function PetFormScreen() {
   const isPending = isCreating || isUpdating;
 
   const handleSave = () => {
-    if (!name || !breed || !weight || !age) {
-      const message = '이름, 품종, 몸무게, 나이를 입력해주세요.';
+    if (!name || !breed || !gender || !weight || !age) {
+      const message = '이름, 품종, 성별, 무게, 나이를 입력해주세요.';
       if (Platform.OS === 'web') {
         window.alert(message);
       } else {
@@ -77,6 +83,7 @@ export default function PetFormScreen() {
     const dto = {
       name,
       breed,
+      gender,
       weight: parseFloat(weight),
       age: parseInt(age, 10),
       notes: notes || undefined,
@@ -109,7 +116,7 @@ export default function PetFormScreen() {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator color="#FF6B6B" />
+        <LoadingSpinner />
       </View>
     );
   }
@@ -117,14 +124,7 @@ export default function PetFormScreen() {
   return (
     <ScrollView style={styles.container}>
       {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← 뒤로</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>
-          {isEditMode ? `${petName} 수정` : '반려견 등록'}
-        </Text>
-      </View>
+      <BackHeader title={isEditMode ? `${petName} 수정` : '반려견 등록'} />
 
       {/* 이름 */}
       <Text style={styles.label}>이름 *</Text>
@@ -143,6 +143,39 @@ export default function PetFormScreen() {
         value={breed}
         onChangeText={setBreed}
       />
+
+      {/* 성별 */}
+      <Text style={styles.label}>성별 *</Text>
+      <View style={styles.genderRow}>
+        <TouchableOpacity
+          style={[
+            styles.genderChip,
+            gender === 'male' && styles.genderChipSelected,
+          ]}
+          onPress={() => setGender('male')}
+        >
+          <Text style={[
+            styles.genderChipText,
+            gender === 'male' && styles.genderChipTextSelected,
+          ]}>
+            🐶 수컷
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.genderChip,
+            gender === 'female' && styles.genderChipSelected,
+          ]}
+          onPress={() => setGender('female')}
+        >
+          <Text style={[
+            styles.genderChipText,
+            gender === 'female' && styles.genderChipTextSelected,
+          ]}>
+            🐩 암컷
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       {/* 몸무게 */}
       <Text style={styles.label}>몸무게 (kg) *</Text>
@@ -182,7 +215,7 @@ export default function PetFormScreen() {
         disabled={isPending}
       >
         {isPending ? (
-          <ActivityIndicator color="#fff" />
+          <LoadingSpinner color="#fff" />
         ) : (
           <Text style={styles.saveButtonText}>
             {isEditMode ? '수정 완료' : '등록 완료'}
@@ -228,6 +261,31 @@ const styles = StyleSheet.create({
     padding: 14,
     fontSize: 14,
     marginBottom: 4,
+  },
+  genderRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  genderChip: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+  },
+  genderChipSelected: {
+    backgroundColor: '#FF6B6B',
+    borderColor: '#FF6B6B',
+  },
+  genderChipText: {
+    fontSize: 15,
+    color: '#666',
+  },
+  genderChipTextSelected: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   textArea: {
     borderWidth: 1,

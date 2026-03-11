@@ -13,6 +13,8 @@ import { type GroomerStackParamList } from '../../navigation/AppNavigator';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
 import { formatTime } from '../../utils/formatTime';
+import StatusBadge from '../../components/StatusBadge';
+import BackHeader from '../../components/BackHeader';
 
 type NavigationProp = NativeStackNavigationProp<GroomerStackParamList, 'GroomerReservationDetail'>;
 type RouteProps = RouteProp<GroomerStackParamList, 'GroomerReservationDetail'>;
@@ -42,19 +44,7 @@ const SERVICE_LABELS = {
   full: '✨ 풀케어',
 };
 
-const STATUS_LABELS = {
-  pending: '대기중',
-  confirmed: '확정',
-  cancelled: '취소됨',
-  done: '완료',
-};
 
-const STATUS_COLORS = {
-  pending: '#FF6B6B',
-  confirmed: '#4CAF50',
-  cancelled: '#999',
-  done: '#5B8CFF',
-};
 
 export default function GroomerReservationDetailScreen() {
   const navigation = useNavigation<NavigationProp>();
@@ -102,23 +92,14 @@ export default function GroomerReservationDetailScreen() {
   return (
     <ScrollView style={styles.container}>
       {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← 뒤로</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>예약 상세</Text>
-      </View>
-
-      {/* 상태 뱃지 */}
-      <View style={[styles.statusBadge, { backgroundColor: STATUS_COLORS[reservation.status] + '20' }]}>
-        <Text style={[styles.statusText, { color: STATUS_COLORS[reservation.status] }]}>
-          {STATUS_LABELS[reservation.status]}
-        </Text>
-      </View>
+      <BackHeader title="예약 상세" />
 
       {/* 예약 정보 */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>📅 예약 정보</Text>
+        <View style={styles.cardTitleRow}>
+          <Text style={styles.cardTitle}>📅 예약 정보</Text>
+          <StatusBadge status={reservation.status} />
+        </View>
         <Text style={styles.cardInfo}>날짜: {reservation.date}</Text>
         <Text style={styles.cardInfo}>
           시간: {formatTime(reservation.startTime)} ~ {formatTime(reservation.endTime)}
@@ -179,14 +160,14 @@ export default function GroomerReservationDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F8F9FA',
     paddingTop: 60,
-    paddingHorizontal: 20,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    paddingHorizontal: 20,
+    marginBottom: 20,
     gap: 16,
   },
   back: {
@@ -196,76 +177,100 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#1A1A1A',
   },
-  statusBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginBottom: 20,
-  },
-  statusText: {
-    fontSize: 14,
-    fontWeight: 'bold',
+  // 상태 뱃지 여백
+  badgeWrapper: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
   },
   card: {
-    backgroundColor: '#F9F9F9',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    gap: 8,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    marginHorizontal: 20,
+    marginBottom: 12,
+    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    cardTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
     marginBottom: 4,
+},
+  cardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1A1A1A',
   },
   cardInfo: {
     fontSize: 14,
     color: '#555',
+    lineHeight: 22,
   },
   buttonRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 10,
     marginTop: 8,
+    marginHorizontal: 20,
     marginBottom: 40,
   },
   confirmButton: {
     flex: 1,
     backgroundColor: '#FF6B6B',
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 16,
     alignItems: 'center',
+    shadowColor: '#FF6B6B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   confirmText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
   },
   cancelButton: {
     flex: 1,
+    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
+    borderColor: '#E0E0E0',
+    borderRadius: 14,
     padding: 16,
     alignItems: 'center',
   },
   cancelText: {
     color: '#999',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
   },
   doneButton: {
     backgroundColor: '#5B8CFF',
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 16,
     alignItems: 'center',
+    marginHorizontal: 20,
     marginTop: 8,
     marginBottom: 40,
+    shadowColor: '#5B8CFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   doneText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
   },
 });

@@ -16,6 +16,9 @@ import { type CustomerStackParamList } from '../../navigation/AppNavigator';
 import { useMyPets } from '../../hooks/usePets';
 import { useCreateReservation } from '../../hooks/useReservations';
 import { formatTime } from '../../utils/formatTime';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import EmptyState from '../../components/EmptyState';
+import BackHeader from '../../components/BackHeader';
 
 type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'ReservationConfirm'>;
 type RouteProps = RouteProp<CustomerStackParamList, 'ReservationConfirm'>;
@@ -81,12 +84,7 @@ export default function ReservationConfirmScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← 뒤로</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>예약 확인</Text>
-      </View>
+      <BackHeader title="예약 확인" />
 
       {/* 예약 정보 요약 */}
       <View style={styles.summaryCard}>
@@ -100,9 +98,9 @@ export default function ReservationConfirmScreen() {
       {/* 반려견 선택 */}
       <Text style={styles.sectionTitle}>🐶 반려견 선택</Text>
       {petsLoading ? (
-        <ActivityIndicator color="#FF6B6B" />
+        <LoadingSpinner />
       ) : pets?.length === 0 ? (
-        <Text style={styles.emptyText}>등록된 반려견이 없습니다.</Text>
+        <EmptyState emoji="🐶" message="등록된 반려견이 없습니다." />
       ) : (
         <View style={styles.petGrid}>
           {pets?.map((pet) => (
@@ -171,7 +169,7 @@ export default function ReservationConfirmScreen() {
         disabled={isPending}
       >
         {isPending ? (
-          <ActivityIndicator color="#fff" />
+          <LoadingSpinner color="#fff" />
         ) : (
           <Text style={styles.confirmButtonText}>예약 확정 🐾</Text>
         )}

@@ -16,6 +16,8 @@ import { type GroomerStackParamList } from '../../navigation/AppNavigator';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
 import { useAuthStore } from '../../store/authStore';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import BackHeader from '../../components/BackHeader';
 
 type NavigationProp = NativeStackNavigationProp<GroomerStackParamList, 'GroomerProfile'>;
 
@@ -93,7 +95,7 @@ export default function GroomerProfileScreen() {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator color="#FF6B6B" />
+        <LoadingSpinner/>
       </View>
     );
   }
@@ -101,12 +103,7 @@ export default function GroomerProfileScreen() {
   return (
     <ScrollView style={styles.container}>
       {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← 뒤로</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>프로필 관리</Text>
-      </View>
+      <BackHeader title="프로필 관리" />
 
       {/* 미용사 이름 (수정 불가) */}
       <View style={styles.nameCard}>
@@ -151,7 +148,7 @@ export default function GroomerProfileScreen() {
         disabled={isPending}
       >
         {isPending ? (
-          <ActivityIndicator color="#fff" />
+          <LoadingSpinner color="#fff" />
         ) : (
           <Text style={styles.saveButtonText}>저장하기</Text>
         )}

@@ -15,6 +15,9 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { type CustomerStackParamList } from '../../navigation/AppNavigator';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
+import StarRating from '../../components/StarRating';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import BackHeader from '../../components/BackHeader';
 
 type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'ReviewForm'>;
 type RouteProps = RouteProp<CustomerStackParamList, 'ReviewForm'>;
@@ -97,14 +100,7 @@ export default function ReviewFormScreen() {
   return (
     <ScrollView style={styles.container}>
       {/* 헤더 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← 뒤로</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>
-          {isEditMode ? '리뷰 수정' : '리뷰 작성'}
-        </Text>
-      </View>
+      <BackHeader title={isEditMode ? '리뷰 수정' : '리뷰 작성'} />
 
       {/* 미용사 이름 */}
       <View style={styles.groomerCard}>
@@ -115,19 +111,7 @@ export default function ReviewFormScreen() {
       {/* 별점 선택 */}
       <Text style={styles.label}>별점 *</Text>
       <View style={styles.starRow}>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <TouchableOpacity
-            key={star}
-            onPress={() => setRating(star)}
-          >
-            <Text style={[
-              styles.star,
-              star <= rating && styles.starSelected,
-            ]}>
-              ★
-            </Text>
-          </TouchableOpacity>
-        ))}
+        <StarRating rating={rating} onRate={setRating} size={36} />
         <Text style={styles.ratingText}>
           {rating > 0 ? `${rating}점` : '선택해주세요'}
         </Text>
@@ -151,7 +135,7 @@ export default function ReviewFormScreen() {
         disabled={isPending}
       >
         {isPending ? (
-          <ActivityIndicator color="#fff" />
+          <LoadingSpinner color="#fff" />
         ) : (
           <Text style={styles.saveButtonText}>
             {isEditMode ? '수정 완료' : '리뷰 등록'}

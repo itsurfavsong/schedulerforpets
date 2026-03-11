@@ -6,13 +6,28 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { type CustomerStackParamList } from '../../navigation/AppNavigator';
+import { useQuery } from '@tanstack/react-query';
+import axiosInstance from '../../api/axiosInstance';
+import { useGroomerRating } from '../../hooks/useReviews';
+import StarRating from '../../components/StarRating';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import BackHeader from '../../components/BackHeader';
 
 type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'GroomerDetail'>;
 type RouteProps = RouteProp<CustomerStackParamList, 'GroomerDetail'>;
+
+interface Groomer {
+  id: string;
+  shopName: string;
+  address: string;
+  bio: string | null;
+  user: { id: string; name: string };
+}
 
 const AVAILABLE_TIMES = [
   '09:00', '10:00', '11:00',
@@ -42,13 +57,19 @@ export default function GroomerDetailScreen() {
 
   const dates = getDates();
 
+  const { data: groomer, isLoading } = useQuery({
+    queryKey: ['groomer', groomerId],
+    queryFn: () => axiosInstance.get<Groomer>(`/groomers/${groomerId}`).then((r) => r.data),
+  });
+
+  const { data: rating } = useGroomerRating(groomerId);
+
   const handleConfirm = () => {
     if (!selectedDate || !selectedTime) {
       Alert.alert('알림', '날짜와 시간을 선택해주세요.');
       return;
     }
 
-    // 종료시간 = 시작시간 + 1시간
     const [hour, minute] = selectedTime.split(':').map(Number);
     const endHour = String(hour + 1).padStart(2, '0');
     const endTime = `${endHour}:${minute.toString().padStart(2, '0')}`;
@@ -64,12 +85,34 @@ export default function GroomerDetailScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← 뒤로</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>{groomerName}</Text>
-      </View>
+      <BackHeader title={groomerName} />
+
+      {/* 미용사 정보 */}
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : (
+        <View style={styles.groomerCard}>
+          <View style={styles.groomerTop}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>✂️</Text>
+            </View>
+            <View style={styles.groomerInfo}>
+              <Text style={styles.shopName}>{groomer?.shopName}</Text>
+              <Text style={styles.groomerName}>{groomer?.user.name} 미용사</Text>
+              <Text style={styles.address}>📍 {groomer?.address}</Text>
+              <View style={styles.ratingRow}>
+                <StarRating rating={rating?.average ?? 0} size={16} />
+                <Text style={styles.ratingText}>
+                  {rating?.average ?? 0} ({rating?.count ?? 0}개)
+                </Text>
+              </View>
+            </View>
+          </View>
+          {groomer?.bio && (
+            <Text style={styles.bio}>{groomer.bio}</Text>
+          )}
+        </View>
+      )}
 
       {/* 날짜 선택 */}
       <Text style={styles.sectionTitle}>📅 날짜 선택</Text>
@@ -77,16 +120,10 @@ export default function GroomerDetailScreen() {
         {dates.map((date) => (
           <TouchableOpacity
             key={date}
-            style={[
-              styles.dateChip,
-              selectedDate === date && styles.dateChipSelected,
-            ]}
+            style={[styles.dateChip, selectedDate === date && styles.dateChipSelected]}
             onPress={() => setSelectedDate(date)}
           >
-            <Text style={[
-              styles.dateChipText,
-              selectedDate === date && styles.dateChipTextSelected,
-            ]}>
+            <Text style={[styles.dateChipText, selectedDate === date && styles.dateChipTextSelected]}>
               {date.slice(5)}
             </Text>
           </TouchableOpacity>
@@ -99,16 +136,10 @@ export default function GroomerDetailScreen() {
         {AVAILABLE_TIMES.map((time) => (
           <TouchableOpacity
             key={time}
-            style={[
-              styles.timeChip,
-              selectedTime === time && styles.timeChipSelected,
-            ]}
+            style={[styles.timeChip, selectedTime === time && styles.timeChipSelected]}
             onPress={() => setSelectedTime(time)}
           >
-            <Text style={[
-              styles.timeChipText,
-              selectedTime === time && styles.timeChipTextSelected,
-            ]}>
+            <Text style={[styles.timeChipText, selectedTime === time && styles.timeChipTextSelected]}>
               {time}
             </Text>
           </TouchableOpacity>
@@ -150,6 +181,62 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  groomerCard: {
+    backgroundColor: '#F9F9F9',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+  },
+  groomerTop: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FFE0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    fontSize: 28,
+  },
+  groomerInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  shopName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  groomerName: {
+    fontSize: 13,
+    color: '#FF6B6B',
+  },
+  address: {
+    fontSize: 13,
+    color: '#666',
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 4,
+  },
+  ratingText: {
+    fontSize: 13,
+    color: '#666',
+  },
+  bio: {
+    marginTop: 12,
+    fontSize: 13,
+    color: '#555',
+    lineHeight: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 12,
   },
   sectionTitle: {
     fontSize: 16,

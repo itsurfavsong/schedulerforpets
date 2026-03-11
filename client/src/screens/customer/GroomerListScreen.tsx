@@ -11,7 +11,9 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { type CustomerStackParamList } from '../../navigation/AppNavigator';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
-import { useGroomerRating } from '../../hooks/useReviews';
+import GroomerCard from '../../components/GroomerCard';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import BackHeader from '../../components/BackHeader';
 
 interface Groomer {
   id: string;
@@ -27,41 +29,6 @@ interface Groomer {
 
 type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'GroomerList'>;
 
-// 카드 컴포넌트 분리
-const GroomerCard = ({
-  item,
-  onPress,
-}: {
-  item: Groomer;
-  onPress: () => void;
-}) => {
-  const { data: rating } = useGroomerRating(item.id);
-
-  return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <View style={styles.cardRow}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>✂️</Text>
-        </View>
-        <View style={styles.cardInfo}>
-          <Text style={styles.shopName}>{item.shopName}</Text>
-          <Text style={styles.groomerName}>{item.user.name} 미용사</Text>
-          <Text style={styles.address}>📍 {item.address}</Text>
-          <View style={styles.ratingRow}>
-            <Text style={styles.ratingStar}>⭐</Text>
-            <Text style={styles.ratingText}>
-              {rating?.average ?? 0} ({rating?.count ?? 0}개)
-            </Text>
-          </View>
-          {item.bio && (
-            <Text style={styles.bio} numberOfLines={2}>{item.bio}</Text>
-          )}
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
 export default function GroomerListScreen() {
   const navigation = useNavigation<NavigationProp>();
 
@@ -72,15 +39,10 @@ export default function GroomerListScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← 뒤로</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>미용사 목록</Text>
-      </View>
+      <BackHeader title="미용사 목록" />
 
       {isLoading ? (
-        <ActivityIndicator color="#FF6B6B" style={{ marginTop: 40 }} />
+        <LoadingSpinner />
       ) : (
         <FlatList
           data={groomers}
@@ -179,5 +141,19 @@ const styles = StyleSheet.create({
   bio: {
     fontSize: 12,
     color: '#999',
+    marginBottom: 8,
+  },
+  chatButton: {
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#FF6B6B',
+    borderRadius: 8,
+    padding: 6,
+    alignItems: 'center',
+  },
+  chatButtonText: {
+    color: '#FF6B6B',
+    fontSize: 13,
+    fontWeight: 'bold',
   },
 });
