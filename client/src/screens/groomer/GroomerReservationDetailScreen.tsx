@@ -7,48 +7,17 @@ import {
   Alert,
   Platform
 } from 'react-native';
-import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type GroomerStackParamList } from '../../navigation/AppNavigator';
+import { ReservationStatus, type GroomerReservationDetailRouteProp, type ReservationDetail } from '../../types';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
 import { formatTime } from '../../utils/formatTime';
 import StatusBadge from '../../components/StatusBadge';
 import BackHeader from '../../components/BackHeader';
-
-type NavigationProp = NativeStackNavigationProp<GroomerStackParamList, 'GroomerReservationDetail'>;
-type RouteProps = RouteProp<GroomerStackParamList, 'GroomerReservationDetail'>;
-
-interface ReservationDetail {
-  id: string;
-  pet: {
-    id: string;
-    name: string;
-    breed: string;
-    weight: number;
-    age: number;
-    notes: string | null;
-  };
-  date: string;
-  startTime: string;
-  endTime: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'done';
-  serviceType: 'bath' | 'cut' | 'full';
-  memo: string | null;
-  createdAt: string;
-}
-
-const SERVICE_LABELS = {
-  bath: '🛁 목욕',
-  cut: '✂️ 커트',
-  full: '✨ 풀케어',
-};
-
-
+import { useRoute } from '@react-navigation/native';
+import { SERVICE_LABELS, STATUS_ACTION_LABELS } from '../../constants/reservation.constants';
 
 export default function GroomerReservationDetailScreen() {
-  const navigation = useNavigation<NavigationProp>();
-  const route = useRoute<RouteProps>();
+  const route = useRoute<GroomerReservationDetailRouteProp>();
   const { reservationId } = route.params;
   const queryClient = useQueryClient();
 
@@ -67,9 +36,8 @@ export default function GroomerReservationDetailScreen() {
     },
   });
 
- const handleUpdateStatus = (status: 'confirmed' | 'done' | 'cancelled') => {
-  const labels = { confirmed: '확정', done: '완료 처리', cancelled: '취소' };
-  const message = `예약을 ${labels[status]}할까요?`;
+ const handleUpdateStatus = (status: ReservationStatus) => {
+  const message = `예약을 ${STATUS_ACTION_LABELS[status]}할까요?`;
 
   if (Platform.OS === 'web') {
     if (window.confirm(message)) updateStatus(status);
@@ -92,7 +60,9 @@ export default function GroomerReservationDetailScreen() {
   return (
     <ScrollView style={styles.container}>
       {/* 헤더 */}
+      <View style={styles.inner}>
       <BackHeader title="예약 상세" />
+      </View>
 
       {/* 예약 정보 */}
       <View style={styles.card}>
@@ -162,6 +132,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F9FA',
     paddingTop: 60,
+  },
+  inner: {
+    paddingHorizontal: 20
   },
   header: {
     flexDirection: 'row',

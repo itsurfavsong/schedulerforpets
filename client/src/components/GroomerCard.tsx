@@ -3,27 +3,13 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  Image
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type CustomerStackParamList } from '../navigation/AppNavigator';
 import axiosInstance from '../api/axiosInstance';
 import { useGroomerRating } from '../hooks/useReviews';
 import StarRating from './StarRating';
-
-interface Groomer {
-  id: string;
-  shopName: string;
-  address: string;
-  bio: string | null;
-  avatarUrl: string | null;
-  user: {
-    id: string;
-    name: string;
-  };
-}
-
-type NavigationProp = NativeStackNavigationProp<CustomerStackParamList>;
+import { type Groomer, type NavigationProp } from '../types';
 
 const GroomerCard = ({
   item,
@@ -48,9 +34,13 @@ const GroomerCard = ({
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={styles.cardRow}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>✂️</Text>
-        </View>
+        {item.avatarUrl ? (
+          <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
+        ) : (
+          <View style={styles.avatarPlaceholder}>
+            <Text style={styles.avatarText}>✂️</Text>
+          </View>
+        )}
         <View style={styles.cardInfo}>
           <Text style={styles.shopName}>{item.shopName}</Text>
           <Text style={styles.groomerName}>{item.user.name} 미용사</Text>
@@ -93,6 +83,14 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#FFE0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarPlaceholder: {
     width: 56,
     height: 56,
     borderRadius: 28,

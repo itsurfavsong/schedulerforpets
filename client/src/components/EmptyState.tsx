@@ -1,9 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-
-interface EmptyStateProps {
-  emoji?: string;
-  message: string;
-}
+import { type EmptyStateProps } from '../types';
 
 const EmptyState = ({ emoji = '🐾', message }: EmptyStateProps) => {
   return (

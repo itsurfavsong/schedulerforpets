@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { ChatRoom } from './chat-room.entity';
 import { Message } from './message.entity';
 import { type User } from 'app/users/user.entity';
-import { AppError } from 'app/common/errors/app.error';
+import { notFoundError } from 'app/common/errors/app.error';
 import { Groomer } from 'app/groomers/groomer.entity';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class ChatService {
       relations: ['user'],
     });
 
-    if (!groomer) throw new AppError('미용사를 찾을 수 없습니다.');
+    if (!groomer) throw notFoundError('미용사를 찾을 수 없습니다.');
 
     const groomerUserId = groomer.user.id;
 
@@ -49,7 +49,7 @@ export class ChatService {
 
   // 내 채팅방 목록
   async findMyRooms(userId: string) {
-    return this.chatRoomRepo.find({
+  const rooms = await this.chatRoomRepo.find({
       where: [
         { customer: { id: userId } },
         { groomer: { id: userId } },
@@ -57,6 +57,41 @@ export class ChatService {
       relations: ['customer', 'groomer'],
       order: { createdAt: 'DESC' },
     });
+
+    // groomer user id로 groomer 프로필 찾아서 shopName 추가
+    return Promise.all(
+      rooms.map(async (room) => {
+        const groomer = await this.groomerRepo.findOne({
+          where: { user: { id: room.groomer.id } },
+        });
+
+        // 마지막 메시지
+      const lastMessage = await this.messageRepo.findOne({
+        where: { room: { id: room.id } },
+        order: { sentAt: 'DESC' },
+      });
+
+      // 안읽은 메시지 수
+      const unreadCount = await this.messageRepo.count({
+        where: {
+          room: { id: room.id },
+          isRead: false,
+          sender: { id: userId === room.customer.id ? room.groomer.id : room.customer.id },
+        },
+      });
+
+        return {
+          ...room,
+          groomer: {
+            ...room.groomer,
+            shopName: groomer?.shopName ?? room.groomer.name,
+          },
+          lastMessage: lastMessage?.content ?? null,
+          lastMessageAt: lastMessage?.sentAt ?? null,
+          unreadCount,
+        };
+      }),
+    );
   }
 
   // 채팅방 메시지 히스토리

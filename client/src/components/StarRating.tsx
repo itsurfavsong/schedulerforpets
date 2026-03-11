@@ -1,10 +1,5 @@
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-
-interface StarRatingProps {
-  rating: number;
-  onRate?: (rating: number) => void; // 없으면 읽기 전용
-  size?: number;
-}
+import { type StarRatingProps } from '../types';
 
 const StarRating = ({ rating, onRate, size = 28 }: StarRatingProps) => {
   return (

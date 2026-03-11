@@ -3,10 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Groomer } from './groomer.entity';
 import { GroomersController } from './groomers.controller';
 import { GroomersService } from './groomers.service';
+import { UploadService } from 'app/common/upload/upload.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Groomer])],
   controllers: [GroomersController],
-  providers: [GroomersService],
+  providers: [GroomersService, UploadService],
 })
 export class GroomersModule {}

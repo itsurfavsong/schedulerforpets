@@ -7,33 +7,21 @@ import {
   ScrollView,
   TextInput,
   Alert,
-  ActivityIndicator,
   Platform,
 } from 'react-native';
-import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type CustomerStackParamList } from '../../navigation/AppNavigator';
+import { type ReservationConfirmRouteProp, type ReservationConfirmNavigationProp, ServiceType } from '../../types';
 import { useMyPets } from '../../hooks/usePets';
 import { useCreateReservation } from '../../hooks/useReservations';
 import { formatTime } from '../../utils/formatTime';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import BackHeader from '../../components/BackHeader';
-
-type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'ReservationConfirm'>;
-type RouteProps = RouteProp<CustomerStackParamList, 'ReservationConfirm'>;
-
-type ServiceType = 'bath' | 'cut' | 'full';
-
-const SERVICE_LABELS: Record<ServiceType, string> = {
-  bath: '🛁 목욕',
-  cut: '✂️ 커트',
-  full: '✨ 풀케어',
-};
+import { SERVICE_LABELS } from '../../constants/reservation.constants';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function ReservationConfirmScreen() {
-  const navigation = useNavigation<NavigationProp>();
-  const route = useRoute<RouteProps>();
+  const navigation = useNavigation<ReservationConfirmNavigationProp>();
+  const route = useRoute<ReservationConfirmRouteProp>();
   const { groomerId, groomerName, date, startTime, endTime } = route.params;
 
   const { data: pets, isLoading: petsLoading } = useMyPets();

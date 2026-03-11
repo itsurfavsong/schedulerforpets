@@ -53,6 +53,7 @@ export const badRequestError = (msg = BAD_REQUEST_ERROR.info) => new AppError(ms
 export const conflictError = (msg = CONFLICT_ERROR.info) => new AppError(msg, CONFLICT_ERROR);
 export const unmatchingUserError = (msg = UNMATCHING_USER_ERROR.info) => new AppError(msg, UNMATCHING_USER_ERROR);
 export const notRegisteredError = (msg = NOT_REGISTERED_ERROR.info) => new AppError(msg, NOT_REGISTERED_ERROR);
+export const systemError = (msg = SYSTEM_ERROR.info) => new AppError(msg, SYSTEM_ERROR);
 
 // -------------------------
 // 상태코드 → ResponseCode 매핑

@@ -2,35 +2,18 @@ import {
   View,
   Text,
   FlatList,
-  TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type CustomerStackParamList } from '../../navigation/AppNavigator';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
 import GroomerCard from '../../components/GroomerCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import BackHeader from '../../components/BackHeader';
-
-interface Groomer {
-  id: string;
-  shopName: string;
-  address: string;
-  bio: string | null;
-  avatarUrl: string | null;
-  user: {
-    id: string;
-    name: string;
-  };
-}
-
-type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'GroomerList'>;
+import { type GroomerListNavigationProp, type Groomer } from '../../types';
 
 export default function GroomerListScreen() {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<GroomerListNavigationProp>();
 
   const { data: groomers, isLoading } = useQuery({
     queryKey: ['groomers'],

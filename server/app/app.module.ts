@@ -8,6 +8,7 @@ import { ReservationsModule } from './reservations/reservations.module';
 import { AuthModule } from './auth/auth.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { ChatModule } from './chat/chat.module';
+import { UploadModule } from './common/upload/upload.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { ChatModule } from './chat/chat.module';
     GroomersModule,
     ReservationsModule,
     ReviewsModule,
-    ChatModule
+    ChatModule,
+    UploadModule
   ],
 })
 export class AppModule {}

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { AppError } from 'app/common/errors/app.error';
+import { notFoundError } from 'app/common/errors/app.error';
 
 @Injectable()
 export class UsersService {
@@ -13,7 +13,7 @@ export class UsersService {
 
   async findById(id: string) {
     const user = await this.userRepo.findOne({ where: { id } });
-    if (!user) throw new AppError('유저를 찾을 수 없습니다.');
+    if (!user) throw notFoundError('유저를 찾을 수 없습니다.');
 
     const { password, ...result } = user;
     return result;

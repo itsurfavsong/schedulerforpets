@@ -8,14 +8,11 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type RootStackParamList } from '../../navigation/AppNavigator';
 import { useLogin } from '../../hooks/useAuth';
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+import { type LoginNavigationProp } from '../../types';
 
 export default function LoginScreen() {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<LoginNavigationProp>();
   const { mutate: login, isPending } = useLogin();
 
   const [email, setEmail] = useState('');

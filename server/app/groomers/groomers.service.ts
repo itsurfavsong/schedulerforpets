@@ -4,13 +4,15 @@ import { Repository } from 'typeorm';
 import { Groomer } from './groomer.entity';
 import { type CreateGroomerDto } from './dto/create-groomer.dto';
 import { type UpdateGroomerDto } from './dto/update-groomer.dto';
-import { AppError } from 'app/common/errors/app.error';
+import { conflictError, forbiddenError, notFoundError } from 'app/common/errors/app.error';
+import { UploadService } from 'app/common/upload/upload.service';
 
 @Injectable()
 export class GroomersService {
   constructor(
     @InjectRepository(Groomer)
     private groomerRepo: Repository<Groomer>,
+    private uploadService: UploadService,
   ) {}
 
   // 미용사 전체 목록 조회 (고객이 검색용)
@@ -26,7 +28,7 @@ export class GroomersService {
       where: { id },
       relations: ['user'],
     });
-    if (!groomer) throw new AppError('미용사를 찾을 수 없습니다.');
+    if (!groomer) throw notFoundError('미용사를 찾을 수 없습니다.');
     return groomer;
   }
 
@@ -35,7 +37,7 @@ export class GroomersService {
     const exists = await this.groomerRepo.findOne({
       where: { user: { id: userId } },
     });
-    if (exists) throw new AppError('이미 미용사 프로필이 존재합니다.');
+    if (exists) throw conflictError('이미 미용사 프로필이 존재합니다.');
 
     const groomer = new Groomer();
     groomer.user = { id: userId } as any;
@@ -53,7 +55,7 @@ export class GroomersService {
       where: { user: { id: userId } },
       relations: ['user'],
     });
-    if (!groomer) throw new AppError('미용사 프로필이 없습니다.');
+    if (!groomer) throw notFoundError('미용사 프로필이 없습니다.');
     return groomer;
   }
 
@@ -63,7 +65,7 @@ export class GroomersService {
       where: { user: { id: userId } },
       relations: ['user'],
     });
-    if (!groomer) throw new AppError('미용사 프로필이 없습니다.');
+    if (!groomer) throw notFoundError('미용사 프로필이 없습니다.');
 
     groomer.shopName = dto.shopName;
     groomer.address = dto.address;
@@ -75,8 +77,19 @@ export class GroomersService {
   // 미용사 프로필 삭제 (Admin)
   async remove(id: string, userId: string) {
     const groomer = await this.findOne(id);
-    if (groomer.user.id !== userId) throw new AppError('권한이 없습니다.');
+    if (groomer.user.id !== userId) throw forbiddenError('권한이 없습니다.');
     await this.groomerRepo.remove(groomer);
     return { message: '미용사 프로필이 삭제되었습니다.' };
+  }
+
+  async uploadImage(file: Express.Multer.File, userId: string) {
+    const groomer = await this.groomerRepo.findOne({
+      where: { user: { id: userId } },
+    });
+    if (!groomer) throw notFoundError('미용사 프로필이 없습니다.');
+
+    const url = await this.uploadService.uploadImage(file, 'groomers');
+    groomer.avatarUrl = url;
+    return this.groomerRepo.save(groomer);
   }
 }

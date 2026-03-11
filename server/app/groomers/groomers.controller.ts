@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Request, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { GroomersService } from './groomers.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { CreateGroomerSchema, type CreateGroomerDto } from './dto/create-groomer.dto';
 import { UpdateGroomerSchema, type UpdateGroomerDto } from './dto/update-groomer.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerConfig } from 'app/common/upload/multer.config';
 
 interface AuthRequest {
   user: { id: string; email: string; role: string };
@@ -18,17 +20,27 @@ export class GroomersController {
   findAll() {
     return this.groomersService.findAll();
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.groomersService.findOne(id);
-  }
-
+  
   // 프로필 조회 (Groomer)
   @Get('me')
   @UseGuards(JwtAuthGuard)
   findMyProfile(@Request() req: AuthRequest) {
     return this.groomersService.findMyProfile(req.user.id);
+  }
+
+  @Post('me/image')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('image', multerConfig))
+  async uploadGroomerImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req: AuthRequest,
+  ) {
+    return this.groomersService.uploadImage(file, req.user.id);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.groomersService.findOne(id);
   }
 
   // 프로필 수정 (Groomer)

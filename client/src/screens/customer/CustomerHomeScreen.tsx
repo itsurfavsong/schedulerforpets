@@ -4,33 +4,29 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
 } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useMyPets } from '../../hooks/usePets';
 import { useMyReservations, useCancelReservation } from '../../hooks/useReservations';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type CustomerStackParamList } from '../../navigation/AppNavigator';
 import { useNavigation } from '@react-navigation/native';
-import ReservationCard, { type Reservation } from '../../components/ReservationCard';
+import ReservationCard from '../../components/ReservationCard';
+import { type Reservation, type CustomerHomeNavigationProp } from '../../types';
 import PetCard from '../../components/PetCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
-
-type NavigationProp = NativeStackNavigationProp<CustomerStackParamList>;
 
 export default function CustomerHomeScreen() {
   const { user, clearAuth } = useAuthStore();
   const { data: pets, isLoading: petsLoading } = useMyPets();
   const { data: reservations, isLoading: reservationsLoading } = useMyReservations();
   const { mutate: cancelReservation } = useCancelReservation();
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<CustomerHomeNavigationProp>();
 
   return (
     <View style={styles.container}>
       {/* 헤더 */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>🐾 안녕하세요, {user?.name}님!</Text>
+        <Text style={styles.headerTitle}>🐾 {user?.name}님</Text>
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <TouchableOpacity onPress={() => navigation.navigate('PetManage')}>
             <Text style={styles.petManageBtn}>🐶 펫 관리</Text>
@@ -71,7 +67,7 @@ export default function CustomerHomeScreen() {
             </TouchableOpacity>
           )}
           showsHorizontalScrollIndicator={false}
-          style={{ maxHeight: 90 }}
+          style={{ maxHeight: 110 }}
         />
       )}
 

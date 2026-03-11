@@ -1,6 +1,5 @@
 import { Text, StyleSheet } from 'react-native';
-
-type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'done';
+import { type ReservationStatus } from '../types'
 
 const StatusBadge = ({ status }: { status: ReservationStatus }) => {
   const { label, style, textStyle } = STATUS_MAP[status];

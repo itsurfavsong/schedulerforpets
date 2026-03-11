@@ -1,9 +1,5 @@
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
-
-interface LoadingSpinnerProps {
-  color?: string;
-  size?: 'small' | 'large';
-}
+import { type LoadingSpinnerProps } from '../types';
 
 const LoadingSpinner = ({ color = '#FF6B6B', size = 'large' }: LoadingSpinnerProps) => {
   return (

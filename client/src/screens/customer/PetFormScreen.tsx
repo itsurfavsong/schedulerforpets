@@ -6,37 +6,25 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  ActivityIndicator,
   Platform,
   Alert,
+  Image,
 } from 'react-native';
-import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type CustomerStackParamList } from '../../navigation/AppNavigator';
-import { useQuery } from '@tanstack/react-query';
+import { type Pet, type PetFormRouteProp, type PetFormNavigationProp } from '../../types';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCreatePet, useUpdatePet } from '../../hooks/usePets';
 import axiosInstance from '../../api/axiosInstance';
-import StarRating from '../../components/StarRating';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import BackHeader from '../../components/BackHeader';
-
-type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'PetForm'>;
-type RouteProps = RouteProp<CustomerStackParamList, 'PetForm'>;
-
-interface Pet {
-  id: string;
-  name: string;
-  breed: string;
-  gender: 'male' | 'female';
-  weight: number;
-  age: number;
-  notes: string | null;
-}
+import { useImageUpload } from '../../hooks/useImageUpload';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function PetFormScreen() {
-  const navigation = useNavigation<NavigationProp>();
-  const route = useRoute<RouteProps>();
+  const navigation = useNavigation<PetFormNavigationProp>();
+  const route = useRoute<PetFormRouteProp>();
   const { petId, petName } = route.params;
+  const queryClient = useQueryClient();
+  const { pickAndUpload } = useImageUpload();
 
   const isEditMode = !!petId;
 
@@ -46,6 +34,7 @@ export default function PetFormScreen() {
   const [weight, setWeight] = useState('');
   const [age, setAge] = useState('');
   const [notes, setNotes] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // 수정 모드일 때 기존 데이터 로드
   const { data: pet, isLoading } = useQuery({
@@ -62,12 +51,26 @@ export default function PetFormScreen() {
       setWeight(String(pet.weight));
       setAge(String(pet.age));
       setNotes(pet.notes ?? '');
+      setAvatarUrl(pet.avatarUrl ?? null);
     }
   }, [pet]);
 
   const { mutate: createPet, isPending: isCreating } = useCreatePet();
   const { mutate: updatePet, isPending: isUpdating } = useUpdatePet();
   const isPending = isCreating || isUpdating;
+
+  const handleImageUpload = async () => {
+    if (!petId) {
+      if (Platform.OS === 'web') window.alert('먼저 반려견을 등록해주세요.');
+      else Alert.alert('알림', '먼저 반려견을 등록해주세요.');
+      return;
+    }
+
+    await pickAndUpload(`/pets/${petId}/image`, (url) => {
+      setAvatarUrl(url);
+      void queryClient.invalidateQueries({ queryKey: ['pets'] });
+    });
+  };
 
   const handleSave = () => {
     if (!name || !breed || !gender || !weight || !age) {
@@ -87,6 +90,7 @@ export default function PetFormScreen() {
       weight: parseFloat(weight),
       age: parseInt(age, 10),
       notes: notes || undefined,
+      avatarUrl: avatarUrl || undefined
     };
 
     if (isEditMode && petId) {
@@ -125,6 +129,20 @@ export default function PetFormScreen() {
     <ScrollView style={styles.container}>
       {/* 헤더 */}
       <BackHeader title={isEditMode ? `${petName} 수정` : '반려견 등록'} />
+
+      {/* 프로필 이미지 */}
+      {isEditMode && (
+        <TouchableOpacity style={styles.imageContainer} onPress={handleImageUpload}>
+          {avatarUrl ? (
+            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <Text style={styles.avatarEmoji}>🐶</Text>
+              <Text style={styles.avatarPlaceholderText}>사진 추가</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      )}
 
       {/* 이름 */}
       <Text style={styles.label}>이름 *</Text>
@@ -232,6 +250,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingTop: 60,
     paddingHorizontal: 20,
+  },
+  imageContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  avatarPlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#FFF5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FFE0E0',
+    borderStyle: 'dashed',
+  },
+  avatarEmoji: {
+    fontSize: 32,
+  },
+  avatarPlaceholderText: {
+    fontSize: 12,
+    color: '#FF6B6B',
+    marginTop: 4,
   },
   header: {
     flexDirection: 'row',

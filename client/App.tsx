@@ -8,12 +8,14 @@ import { usePushNotifications } from './src/hooks/useNotifications';
 const queryClient = new QueryClient();
 
 function RootApp() {
-  const { loadAuth, isLoading } = useAuthStore();
+  const { loadAuth, isLoading, token, connectSocket, disconnectSocket } = useAuthStore();
   usePushNotifications();
 
   useEffect(() => {
+    if (token) connectSocket();
+    else disconnectSocket();
     void loadAuth();
-  }, []);
+  }, [token]);
 
   if (isLoading) {
     return (

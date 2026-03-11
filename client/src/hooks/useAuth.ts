@@ -1,28 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
 import { useAuthStore } from '../store/authStore';
-
-interface RegisterDto {
-  name: string;
-  phone: string;
-  email: string;
-  password: string;
-}
-
-interface LoginDto {
-  email: string;
-  password: string;
-}
-
-interface AuthResponse {
-  accessToken: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-  };
-}
+import { type RegisterDto, type LoginDto, type AuthResponse } from '../types';
 
 export const useRegister = () => {
   return useMutation({

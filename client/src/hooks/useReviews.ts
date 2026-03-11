@@ -1,18 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
-
-interface Review {
-  id: string;
-  author: { id: string; name: string };
-  rating: number;
-  comment: string | null;
-  reviewedAt: string;
-}
-
-interface RatingInfo {
-  average: number;
-  count: number;
-}
+import { type Review, type RatingInfo } from '../types';
 
 export const useGroomerReviews = (groomerId: string) =>
   useQuery({

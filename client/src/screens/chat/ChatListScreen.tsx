@@ -6,29 +6,14 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
 import { useAuthStore } from '../../store/authStore';
-import { RootStackParamList } from '../../navigation/AppNavigator';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import BackHeader from '../../components/BackHeader';
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-interface ChatRoom {
-  id: string;
-  customer: {
-    id: string;
-    name: string;
-  };
-  groomer: {
-    id: string;
-    name: string;
-  };
-  createdAt: string;
-}
+import { type NavigationProp } from '../../types';
+import { type ChatRoom } from '../../types';
 
 export default function ChatListScreen() {
   const navigation = useNavigation<NavigationProp>();
@@ -41,7 +26,7 @@ export default function ChatListScreen() {
 
   const getChatPartner = (room: ChatRoom) => {
     if (user?.role === 'customer') {
-      return room.groomer.name;
+      return room.groomer.shopName;
     }
     return room.customer.name;
   };
@@ -67,15 +52,29 @@ export default function ChatListScreen() {
                 })
               }
             >
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {user?.role === 'customer' ? '✂️' : '🐾'}
-                </Text>
-              </View>
-              <View style={styles.cardInfo}>
-                <Text style={styles.partnerName}>{getChatPartner(item)}</Text>
-                <Text style={styles.date}>{item.createdAt.slice(0, 10)}</Text>
-              </View>
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>
+                    {user?.role === 'customer' ? '✂️' : '🐾'}
+                  </Text>
+                </View>
+                <View style={styles.cardInfo}>
+                  <View style={styles.cardTop}>
+                    <Text style={styles.partnerName}>{getChatPartner(item)}</Text>
+                    <Text style={styles.date}>
+                      {item.lastMessageAt ? item.lastMessageAt.slice(0, 10) : item.createdAt.slice(0, 10)}
+                    </Text>
+                  </View>
+                  <View style={styles.cardBottom}>
+                    <Text style={styles.lastMessage} numberOfLines={1}>
+                      {item.lastMessage ?? '아직 메시지가 없습니다.'}
+                    </Text>
+                    {item.unreadCount > 0 && (
+                      <View style={styles.badge}>
+                        <Text style={styles.badgeText}>{item.unreadCount}</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
             </TouchableOpacity>
           )}
         />
@@ -139,6 +138,37 @@ const styles = StyleSheet.create({
   },
   cardInfo: {
     flex: 1,
+  },
+  cardTop: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 4,
+  },
+  cardBottom: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  lastMessage: {
+    fontSize: 13,
+    color: '#999',
+    flex: 1,
+  },
+  badge: {
+    backgroundColor: '#FF6B6B',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+    marginLeft: 8,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
   partnerName: {
     fontSize: 16,

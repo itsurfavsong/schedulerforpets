@@ -1,22 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
-
-interface Pet {
-  id: string;
-  name: string;
-  breed: string;
-  weight: number;
-  age: number;
-  notes: string | null;
-}
-
-interface CreatePetDto {
-  name: string;
-  breed: string;
-  weight: number;
-  age: number;
-  notes?: string;
-}
+import { type Pet, type CreatePetDto } from '../types'
 
 export const useMyPets = () =>
   useQuery({

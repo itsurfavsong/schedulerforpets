@@ -4,26 +4,23 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   Alert,
   Platform,
 } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axiosInstance from '../../api/axiosInstance';
+import { type GroomerHomeNavigationProp, type Reservation, type ReservationStatus } from '../../types';
 import { useNavigation } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type GroomerStackParamList } from '../../navigation/AppNavigator';
-import ReservationCard, { type Reservation, type ReservationStatus } from '../../components/ReservationCard';
+import { STATUS_ACTION_LABELS } from '../../constants/reservation.constants';
+import axiosInstance from '../../api/axiosInstance';
+import ReservationCard from '../../components/ReservationCard';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
-
-type NavigationProp = NativeStackNavigationProp<GroomerStackParamList, 'GroomerHome'>;
 
 export default function GroomerHomeScreen() {
   const { user, clearAuth } = useAuthStore();
   const queryClient = useQueryClient();
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<GroomerHomeNavigationProp>();
 
   const { data: reservations, isLoading } = useQuery({
     queryKey: ['reservations', 'groomer'],
@@ -41,9 +38,7 @@ export default function GroomerHomeScreen() {
 
   const handleStatusChange = (id: string, status: ReservationStatus) => {
     if (status === 'pending') return;
-
-    const labels = { confirmed: '확정', done: '완료', cancelled: '취소' };
-    const message = `예약을 ${labels[status]}할까요?`;
+    const message = `예약을 ${STATUS_ACTION_LABELS[status]}할까요?`;
 
     if (Platform.OS === 'web') {
       if (window.confirm(message)) updateStatus({ id, status });

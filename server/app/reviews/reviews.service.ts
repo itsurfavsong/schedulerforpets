@@ -7,7 +7,7 @@ import { type UpdateReviewDto } from './dto/update-review.dto';
 import { User } from 'app/users/user.entity';
 import { Groomer } from 'app/groomers/groomer.entity';
 import { Reservation } from 'app/reservations/reservation.entity';
-import { AppError } from 'app/common/errors/app.error';
+import { conflictError, forbiddenError, notFoundError } from 'app/common/errors/app.error';
 
 @Injectable()
 export class ReviewsService {
@@ -20,7 +20,7 @@ export class ReviewsService {
     const exists = await this.reviewRepo.findOne({
       where: { reservation: { id: dto.reservationId } },
     });
-    if (exists) throw new AppError('이미 리뷰를 작성했습니다.');
+    if (exists) throw conflictError('이미 리뷰를 작성했습니다.');
 
     const review = new Review();
     review.author = { id: userId } as User;
@@ -38,8 +38,8 @@ export class ReviewsService {
       where: { id },
       relations: ['author'],
     });
-    if (!review) throw new AppError('리뷰를 찾을 수 없습니다.');
-    if (review.author.id !== userId) throw new AppError('권한이 없습니다.');
+    if (!review) throw notFoundError('리뷰를 찾을 수 없습니다.');
+    if (review.author.id !== userId) throw forbiddenError('권한이 없습니다.');
 
     review.rating = dto.rating ?? review.rating;
     review.comment = dto.comment ?? review.comment;
@@ -53,8 +53,8 @@ export class ReviewsService {
       where: { id },
       relations: ['author'],
     });
-    if (!review) throw new AppError('리뷰를 찾을 수 없습니다.');
-    if (review.author.id !== userId) throw new AppError('권한이 없습니다.');
+    if (!review) throw notFoundError('리뷰를 찾을 수 없습니다.');
+    if (review.author.id !== userId) throw forbiddenError('권한이 없습니다.');
 
     await this.reviewRepo.softRemove(review);
     return { message: '리뷰가 삭제되었습니다.' };

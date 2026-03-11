@@ -6,33 +6,16 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
-import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type CustomerStackParamList } from '../../navigation/AppNavigator';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
 import { useGroomerRating } from '../../hooks/useReviews';
 import StarRating from '../../components/StarRating';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import BackHeader from '../../components/BackHeader';
-
-type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'GroomerDetail'>;
-type RouteProps = RouteProp<CustomerStackParamList, 'GroomerDetail'>;
-
-interface Groomer {
-  id: string;
-  shopName: string;
-  address: string;
-  bio: string | null;
-  user: { id: string; name: string };
-}
-
-const AVAILABLE_TIMES = [
-  '09:00', '10:00', '11:00',
-  '13:00', '14:00', '15:00', '16:00', '17:00',
-];
+import { type GroomerDetailNavigationProp, type GroomerDetailRouteProp, type Groomer } from '../../types';
+import { AVAILABLE_TIMES } from '../../constants/reservation.constants';
 
 const getDates = () => {
   const dates = [];
@@ -48,8 +31,8 @@ const getDates = () => {
 };
 
 export default function GroomerDetailScreen() {
-  const navigation = useNavigation<NavigationProp>();
-  const route = useRoute<RouteProps>();
+  const navigation = useNavigation<GroomerDetailNavigationProp>();
+  const route = useRoute<GroomerDetailRouteProp>();
   const { groomerId, groomerName } = route.params;
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);

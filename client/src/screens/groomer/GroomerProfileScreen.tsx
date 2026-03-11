@@ -6,41 +6,34 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  ActivityIndicator,
   Platform,
   Alert,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type GroomerStackParamList } from '../../navigation/AppNavigator';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
 import { useAuthStore } from '../../store/authStore';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import BackHeader from '../../components/BackHeader';
-
-type NavigationProp = NativeStackNavigationProp<GroomerStackParamList, 'GroomerProfile'>;
-
-interface GroomerProfile {
-  id: string;
-  shopName: string | null;
-  address: string | null;
-  bio: string | null;
-  avatarUrl: string | null;
-}
+import { useImageUpload } from '../../hooks/useImageUpload';
+import { type GroomerProfileNavigationProp, type Groomer } from '../../types';
+import AddressSearchInput from '../../components/AddressSearchInput';
 
 export default function GroomerProfileScreen() {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<GroomerProfileNavigationProp>();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
   const [shopName, setShopName] = useState('');
   const [address, setAddress] = useState('');
   const [bio, setBio] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const { pickAndUpload } = useImageUpload();
 
   const { data: myProfile, isLoading } = useQuery({
     queryKey: ['groomers', 'me'],
-    queryFn: () => axiosInstance.get<GroomerProfile>('/groomers/me').then((r) => r.data),
+    queryFn: () => axiosInstance.get<Groomer>('/groomers/me').then((r) => r.data),
   });
 
   // 프로필 데이터 로드
@@ -49,6 +42,7 @@ export default function GroomerProfileScreen() {
       setShopName(myProfile.shopName ?? '');
       setAddress(myProfile.address ?? '');
       setBio(myProfile.bio ?? '');
+      setAvatarUrl(myProfile.avatarUrl ?? '');
     }
   }, [myProfile]);
 
@@ -92,6 +86,13 @@ export default function GroomerProfileScreen() {
     updateProfile();
   };
 
+  const handleImageUpload = async () => {
+    await pickAndUpload('/groomers/me/image', (url) => {
+      setAvatarUrl(url);
+      void queryClient.invalidateQueries({ queryKey: ['groomers'] });
+    });
+  };
+
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -106,11 +107,17 @@ export default function GroomerProfileScreen() {
       <BackHeader title="프로필 관리" />
 
       {/* 미용사 이름 (수정 불가) */}
-      <View style={styles.nameCard}>
-        <Text style={styles.nameEmoji}>✂️</Text>
+      <TouchableOpacity style={styles.nameCard} onPress={() => void handleImageUpload()}>
+        {avatarUrl ? (
+          <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+        ) : (
+          <View style={styles.avatarPlaceholder}>
+            <Text style={styles.avatarPlaceholderText}>사진 추가</Text>
+          </View>
+        )}
         <Text style={styles.name}>{user?.name} 미용사</Text>
         <Text style={styles.email}>{user?.email}</Text>
-      </View>
+      </TouchableOpacity>
 
       {/* 매장명 */}
       <Text style={styles.label}>매장명 *</Text>
@@ -123,11 +130,9 @@ export default function GroomerProfileScreen() {
 
       {/* 주소 */}
       <Text style={styles.label}>주소 *</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="주소를 입력해주세요."
+      <AddressSearchInput
         value={address}
-        onChangeText={setAddress}
+        onChange={setAddress}
       />
 
       {/* 소개 */}
@@ -185,6 +190,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
     gap: 4,
+  },
+  avatar: {
+  width: 80,
+  height: 80,
+  borderRadius: 40,
+  marginBottom: 8,
+},
+  avatarPlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FFE0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    borderWidth: 2,
+    borderColor: '#FF6B6B',
+    borderStyle: 'dashed',
+  },
+  avatarPlaceholderText: {
+    fontSize: 11,
+    color: '#FF6B6B',
+    marginTop: 2,
   },
   nameEmoji: {
     fontSize: 40,

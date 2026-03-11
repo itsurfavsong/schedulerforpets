@@ -1,26 +1,6 @@
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-
-interface Pet {
-  id: string;
-  name: string;
-  breed: string;
-  gender?: 'male' | 'female' | null;
-  age?: number | null;
-  weight?: number | null;
-}
-
-const getBreedEmoji = (breed: string) => {
-  const emojiMap: Record<string, string> = {
-    '말티즈': '🐶',
-    '푸들': '🐩',
-    '시츄': '🐾',
-    '포메라니안': '🦊',
-    '골든리트리버': '🦮',
-    '치와와': '🐕',
-    '비숑': '🐑',
-  };
-  return emojiMap[breed] ?? '🐶';
-};
+import { TouchableOpacity, Text, StyleSheet, Image, View } from 'react-native';
+import { type Pet } from '../types';
+import { getBreedEmoji } from '../constants/pet.constants';
 
 const PetCard = ({
   item,
@@ -31,7 +11,13 @@ const PetCard = ({
 }) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Text style={styles.emoji}>{getBreedEmoji(item.breed)}</Text>
+      {item.avatarUrl ? (
+        <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
+      ) : (
+        <View style={styles.avatarPlaceholder}>
+          <Text style={styles.emoji}>{getBreedEmoji(item.breed)}</Text>
+        </View>
+      )}
       <Text style={styles.name}>{item.name}</Text>
     </TouchableOpacity>
   );
@@ -48,6 +34,21 @@ const styles = StyleSheet.create({
     marginRight: 12,
     minWidth: 90,
     alignItems: 'center',
+  },
+    avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginBottom: 4,
+  },
+  avatarPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#FFE0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
   },
   emoji: {
     fontSize: 30,

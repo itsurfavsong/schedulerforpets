@@ -6,25 +6,20 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  ActivityIndicator,
   Platform,
   Alert,
 } from 'react-native';
-import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type CustomerStackParamList } from '../../navigation/AppNavigator';
+import { type ReviewFormRouteProp, type ReviewFormNavigationProp } from '../../types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
 import StarRating from '../../components/StarRating';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import BackHeader from '../../components/BackHeader';
-
-type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'ReviewForm'>;
-type RouteProps = RouteProp<CustomerStackParamList, 'ReviewForm'>;
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function ReviewFormScreen() {
-  const navigation = useNavigation<NavigationProp>();
-  const route = useRoute<RouteProps>();
+  const navigation = useNavigation<ReviewFormNavigationProp>();
+  const route = useRoute<ReviewFormRouteProp>();
   const {
     groomerId,
     groomerName,

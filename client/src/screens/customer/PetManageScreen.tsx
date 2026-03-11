@@ -4,22 +4,19 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   Platform,
   Alert,
+  Image
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type CustomerStackParamList } from '../../navigation/AppNavigator';
 import { useMyPets, useDeletePet } from '../../hooks/usePets';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
 import BackHeader from '../../components/BackHeader';
-
-type NavigationProp = NativeStackNavigationProp<CustomerStackParamList, 'PetManage'>;
+import { type PetManageNavigationProp } from '../../types';
 
 export default function PetManageScreen() {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<PetManageNavigationProp>();
   const { data: pets, isLoading } = useMyPets();
   const { mutate: deletePet } = useDeletePet();
 
@@ -66,9 +63,13 @@ export default function PetManageScreen() {
           renderItem={({ item }) => (
             <View style={styles.card}>
               <View style={styles.cardRow}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>🐶</Text>
-                </View>
+                {item.avatarUrl ? (
+                  <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
+                ) : (
+                  <View style={styles.avatarPlaceholder}>
+                    <Text style={styles.avatarText}>🐶</Text>
+                  </View>
+                )}
                 <View style={styles.cardInfo}>
                   <Text style={styles.petName}>{item.name}</Text>
                   <Text style={styles.petInfo}>{item.breed}</Text>
@@ -168,6 +169,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   avatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+  },
+  avatarPlaceholder: {
     width: 52,
     height: 52,
     borderRadius: 26,

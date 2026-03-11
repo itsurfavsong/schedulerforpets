@@ -1,28 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
-
-interface Reservation {
-  id: string;
-  pet: { id: string; name: string; breed: string };
-  groomer: { id: string; shopName: string; address: string };
-  date: string;
-  startTime: string;
-  endTime: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'done';
-  serviceType: 'bath' | 'cut' | 'full';
-  memo: string | null;
-  createdAt: string;
-}
-
-interface CreateReservationDto {
-  petId: string;
-  groomerId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  serviceType: 'bath' | 'cut' | 'full';
-  memo?: string;
-}
+import { type Reservation, type CreateReservationDto } from '../types';
 
 export const useMyReservations = () =>
   useQuery({

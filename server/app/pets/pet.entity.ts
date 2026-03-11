@@ -33,6 +33,9 @@ export class Pet extends BaseEntity {
   
   @Column({ nullable: true })
   age: number;
+  
+  @Column({ nullable: true })
+  avatarUrl: string;
 
   @Column({ nullable: true, type: 'text' })
   notes: string | null;

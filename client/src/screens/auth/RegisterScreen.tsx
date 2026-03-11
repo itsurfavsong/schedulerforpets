@@ -8,14 +8,11 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { type RootStackParamList } from '../../navigation/AppNavigator';
 import { useRegister } from '../../hooks/useAuth';
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
+import { type RegisterNavigationProp } from '../../types';
 
 export default function RegisterScreen() {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<RegisterNavigationProp>();
   const { mutate: register, isPending } = useRegister();
 
   const [name, setName] = useState('');

@@ -1,10 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-interface BackHeaderProps {
-  title: string;
-  right?: React.ReactNode; // 오른쪽에 추가 버튼
-}
+import { type BackHeaderProps } from '../types';
 
 const BackHeader = ({ title, right }: BackHeaderProps) => {
   const navigation = useNavigation();
@@ -30,7 +26,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   back: {
-    paddingLeft:16,
     fontSize: 16,
     color: '#FF6B6B',
     minWidth: 60,

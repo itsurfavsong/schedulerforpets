@@ -9,29 +9,18 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useRoute, type RouteProp } from '@react-navigation/native';
-import { type RootStackParamList } from '../../navigation/AppNavigator';
-import { useQuery } from '@tanstack/react-query';
+import { useRoute } from '@react-navigation/native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../../api/axiosInstance';
 import { useAuthStore } from '../../store/authStore';
-import { useSocket } from '../../hooks/useSocket';
 import BackHeader from '../../components/BackHeader';
-
-type RouteProps = RouteProp<RootStackParamList, 'Chat'>;
-
-interface Message {
-  id: string;
-  content: string;
-  senderId?: string;
-  sender?: { id: string; name: string };
-  sentAt: string;
-}
+import { type ChatRouteProp, type Message } from '../../types';
 
 export default function ChatScreen() {
-  const route = useRoute<RouteProps>();
+  const route = useRoute<ChatRouteProp>();
   const { roomId, shopName } = route.params;
   const { user } = useAuthStore();
-  const socket = useSocket();
+  const socket = useAuthStore((state) => state.socket);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -44,6 +33,8 @@ export default function ChatScreen() {
       axiosInstance.get<Message[]>(`/chat/rooms/${roomId}/messages`).then((r) => r.data),
   });
 
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     if (history) setMessages(history);
   }, [history]);
@@ -54,10 +45,19 @@ export default function ChatScreen() {
     // 채팅방 입장
     socket.emit('join_room', roomId);
 
-    // 새 메시지 수신
+    // 읽음 처리 후 채팅방 목록 갱신
+    axiosInstance.post(`/chat/rooms/${roomId}/read`).then(() => {
+      void queryClient.invalidateQueries({ queryKey: ['chat', 'rooms'] });
+    });
+
+    // 새 메시지 수신 
     socket.on('new_message', (message: Message) => {
       setMessages((prev) => [...prev, message]);
       flatListRef.current?.scrollToEnd({ animated: true });
+      // 새 메시지 수신 시 즉시 읽음 처리
+      axiosInstance.post(`/chat/rooms/${roomId}/read`).then(() => {
+        void queryClient.invalidateQueries({ queryKey: ['chat', 'rooms'] });
+      });
     });
 
     return () => {
@@ -92,7 +92,9 @@ export default function ChatScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       {/* 헤더 */}
+      <View style={styles.inner}>
       <BackHeader title={shopName} />
+      </View>
 
       {/* 메시지 목록 */}
       <FlatList
@@ -126,6 +128,7 @@ export default function ChatScreen() {
                 </Text>
               </View>
             </View>
+            
           );
         }}
       />
@@ -157,6 +160,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 60,
+  },
+  inner: {
+    paddingHorizontal: 20
   },
   header: {
     flexDirection: 'row',

@@ -6,41 +6,13 @@ import {
 } from 'react-native';
 import StatusBadge from './StatusBadge';
 import { formatTime } from '../utils/formatTime';
-
-export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'done';
-export type ServiceType = 'bath' | 'cut' | 'full';
+import { type ServiceType, type ReservationCardProps } from '../types';
 
 export const SERVICE_MAP: Record<ServiceType, string> = {
   bath: '목욕',
   cut: '커트',
   full: '풀케어',
 };
-
-export interface Reservation {
-  id: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  status: ReservationStatus;
-  serviceType: ServiceType;
-  memo: string | null;
-  pet: {
-    id: string;
-    name: string;
-    breed: string | null;
-  };
-  groomer: {
-    id: string;
-    shopName: string;
-  };
-}
-
-interface ReservationCardProps {
-  item: Reservation;
-  onReview?: () => void;        // 고객용 리뷰 버튼
-  onCancel?: () => void;        // 고객용 취소 버튼
-  onStatusChange?: (status: ReservationStatus) => void; // 미용사용
-}
 
 const ReservationCard = ({
   item,

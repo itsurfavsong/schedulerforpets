@@ -7,7 +7,7 @@ import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { Pet } from 'app/pets/pet.entity';
 import { Groomer } from 'app/groomers/groomer.entity';
 import { NotificationsService } from 'app/notifications/notifications.service';
-import { AppError } from 'app/common/errors/app.error';
+import { forbiddenError, notFoundError } from 'app/common/errors/app.error';
 
 @Injectable()
 export class ReservationsService {
@@ -73,7 +73,7 @@ export class ReservationsService {
       relations: ['pet', 'groomer', 'groomer.user'],
     });
 
-    if (!reservation) throw new AppError('예약을 찾을 수 없습니다.');
+    if (!reservation) throw notFoundError('예약을 찾을 수 없습니다.');
     return reservation;
   }
 
@@ -83,9 +83,9 @@ export class ReservationsService {
       where: { id },
       relations: ['groomer', 'groomer.user', 'pet', 'pet.owner'],
     });
-    if (!reservation) throw new AppError('예약을 찾을 수 없습니다.');
+    if (!reservation) throw notFoundError('예약을 찾을 수 없습니다.');
     if (reservation.groomer.user.id !== userId)
-      throw new AppError('권한이 없습니다.');
+      throw forbiddenError('권한이 없습니다.');
 
     reservation.status = dto.status;
     await this.reservationRepo.save(reservation);
@@ -126,7 +126,7 @@ export class ReservationsService {
     const reservation = await this.findOne(id);
 
     if (reservation.pet.owner.id !== userId)
-      throw new AppError('권한이 없습니다.');
+      throw forbiddenError('권한이 없습니다.');
 
     reservation.status = 'cancelled';
     return this.reservationRepo.save(reservation);
